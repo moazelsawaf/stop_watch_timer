@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
-import 'package:stop_watch_timer_example/rounded_button.dart';
 
 class CountDownTimerPage extends StatefulWidget {
   static Future<void> navigatorPush(BuildContext context) async {
@@ -60,7 +59,7 @@ class _State extends State<CountDownTimerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CountDown Sample'),
+        title: const Text('Count Down Timer'),
       ),
       body: Scrollbar(
         child: SingleChildScrollView(
@@ -251,36 +250,39 @@ class _State extends State<CountDownTimerPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: RoundedButton(
-                          color: Colors.lightBlue,
-                          onTap: _stopWatchTimer.onStartTimer,
-                          child: const Text(
-                            'Start',
-                            style: TextStyle(color: Colors.white),
+                      Flexible(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: FilledButton(
+                            onPressed: _stopWatchTimer.onStartTimer,
+                            child: const Text(
+                              'Start',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: RoundedButton(
-                          color: Colors.green,
-                          onTap: _stopWatchTimer.onStopTimer,
-                          child: const Text(
-                            'Stop',
-                            style: TextStyle(color: Colors.white),
+                      Flexible(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: FilledButton(
+                            onPressed: _stopWatchTimer.onStopTimer,
+                            child: const Text(
+                              'Stop',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: RoundedButton(
-                          color: Colors.red,
-                          onTap: _stopWatchTimer.onResetTimer,
-                          child: const Text(
-                            'Reset',
-                            style: TextStyle(color: Colors.white),
+                      Flexible(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: FilledButton(
+                            onPressed: _stopWatchTimer.onResetTimer,
+                            child: const Text(
+                              'Reset',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                       ),
@@ -292,30 +294,29 @@ class _State extends State<CountDownTimerPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(0).copyWith(right: 8),
-                        child: RoundedButton(
-                          color: Colors.deepPurpleAccent,
-                          onTap: _stopWatchTimer.onAddLap,
-                          child: const Text(
-                            'Lap',
-                            style: TextStyle(color: Colors.white),
+                      Flexible(
+                        child: Padding(
+                          padding: const EdgeInsets.all(0).copyWith(right: 8),
+                          child: FilledButton(
+                            onPressed: _stopWatchTimer.onAddLap,
+                            child: const Text(
+                              'Lap',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Padding(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Flexible(
+                      child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: RoundedButton(
-                          color: Colors.pinkAccent,
-                          onTap: () {
+                        child: FilledButton(
+                          onPressed: () {
                             _stopWatchTimer.setPresetHoursTime(1);
                           },
                           child: const Text(
@@ -324,11 +325,12 @@ class _State extends State<CountDownTimerPage> {
                           ),
                         ),
                       ),
-                      Padding(
+                    ),
+                    Flexible(
+                      child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: RoundedButton(
-                          color: Colors.pinkAccent,
-                          onTap: () {
+                        child: FilledButton(
+                          onPressed: () {
                             _stopWatchTimer.setPresetMinuteTime(59);
                           },
                           child: const Text(
@@ -337,42 +339,46 @@ class _State extends State<CountDownTimerPage> {
                           ),
                         ),
                       ),
-                      Padding(
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: RoundedButton(
-                          color: Colors.pinkAccent,
-                          onTap: () {
+                        child: FilledButton(
+                          onPressed: () {
                             _stopWatchTimer.setPresetSecondTime(10);
                           },
                           child: const Text(
-                            'Set Second',
+                            'Set +Second',
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: RoundedButton(
-                    color: Colors.pinkAccent,
-                    onTap: () {
-                      _stopWatchTimer.setPresetTime(mSec: 3599 * 1000);
-                    },
-                    child: const Text(
-                      'Set PresetTime',
-                      style: TextStyle(color: Colors.white),
                     ),
-                  ),
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: FilledButton(
+                          onPressed: () {
+                            _stopWatchTimer.setPresetSecondTime(-10);
+                          },
+                          child: const Text(
+                            'Set -Second',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: RoundedButton(
-                    color: Colors.pinkAccent,
-                    onTap: () {
-                      _stopWatchTimer.clearPresetTime();
-                    },
+                  child: FilledButton(
+                    onPressed: _stopWatchTimer.clearPresetTime,
                     child: const Text(
                       'Clear PresetTime',
                       style: TextStyle(color: Colors.white),

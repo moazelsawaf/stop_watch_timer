@@ -1,4 +1,32 @@
-# 2.0.0
+# 3.1.1
+Fix pubspec.yaml
+
+## 3.1.0+4
+Updated README.
+
+## 3.1.0+3
+Updated README.
+
+## 3.1.0+2
+Updated README.
+
+## 3.1.0+1
+Updated README.
+
+## 3.1.0
+Added refreshTime parameter. [#38](https://github.com/hukusuke1007/stop_watch_timer/pull/38)
+
+## 3.0.2
+Bug fix (see issue [#37](https://github.com/hukusuke1007/stop_watch_timer/pull/37)).
+
+## 3.0.1
+Bug fix (see issue [#36](https://github.com/hukusuke1007/stop_watch_timer/issues/36)).
+
+## 3.0.0
+Update dependency constraints to sdk: '>=2.17.0 <4.0.0'.
+Removed _executeController, execute, onExecute IF.
+
+## 2.0.0
 Breaking change
  - Renamed function. onStop => onStopped, fetchStop => fetchStopped
  - Changed timer execution IF.

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// StopWatchRecord
@@ -32,6 +31,7 @@ class StopWatchTimer {
     this.isLapHours = true,
     this.mode = StopWatchMode.countUp,
     int presetMillisecond = 0,
+    this.refreshTime = 1,
     this.onChange,
     this.onChangeRawSecond,
     this.onChangeRawMinute,
@@ -55,52 +55,30 @@ class StopWatchTimer {
 
     _elapsedTime.listen((value) {
       _rawTimeController.add(value);
-      if (onChange != null) {
-        onChange!(value);
-      }
+      onChange?.call(value);
       final latestSecond = getRawSecond(value);
       if (_second != latestSecond) {
         _secondTimeController.add(latestSecond);
         _second = latestSecond;
-        if (onChangeRawSecond != null) {
-          onChangeRawSecond!(latestSecond);
-        }
+        onChangeRawSecond?.call(latestSecond);
       }
       final latestMinute = getRawMinute(value);
       if (_minute != latestMinute) {
         _minuteTimeController.add(latestMinute);
         _minute = latestMinute;
-        if (onChangeRawMinute != null) {
-          onChangeRawMinute!(latestMinute);
-        }
-      }
-    });
-
-    _executeController.listen((value) {
-      switch (value) {
-        case StopWatchExecute.start:
-          _start();
-          break;
-        case StopWatchExecute.stop:
-          _stop();
-          break;
-        case StopWatchExecute.reset:
-          _reset();
-          break;
-        case StopWatchExecute.lap:
-          _lap();
-          break;
+        onChangeRawMinute?.call(latestMinute);
       }
     });
   }
 
   final bool isLapHours;
   final StopWatchMode mode;
-  final Function(int)? onChange;
-  final Function(int)? onChangeRawSecond;
-  final Function(int)? onChangeRawMinute;
-  final VoidCallback? onStopped;
-  final VoidCallback? onEnded;
+  final int refreshTime;
+  final void Function(int)? onChange;
+  final void Function(int)? onChangeRawSecond;
+  final void Function(int)? onChangeRawMinute;
+  final void Function()? onStopped;
+  final void Function()? onEnded;
 
   final PublishSubject<int> _elapsedTime = PublishSubject<int>();
 
@@ -116,14 +94,6 @@ class StopWatchTimer {
   final BehaviorSubject<List<StopWatchRecord>> _recordsController =
       BehaviorSubject<List<StopWatchRecord>>.seeded([]);
   ValueStream<List<StopWatchRecord>> get records => _recordsController;
-
-  final PublishSubject<StopWatchExecute> _executeController =
-      PublishSubject<StopWatchExecute>();
-  Stream<StopWatchExecute> get execute => _executeController;
-  @Deprecated(
-      'Use functions of onStarTimer, onStopTimer, onResetTimer, onAddLap instead. '
-      'This feature was deprecated after v2.0.0.')
-  Sink<StopWatchExecute> get onExecute => _executeController.sink;
 
   final PublishSubject<bool> _onStoppedController = PublishSubject<bool>();
   Stream<bool> get fetchStopped => _onStoppedController;
@@ -161,40 +131,40 @@ class StopWatchTimer {
     final msStr = getDisplayTimeMillisecond(value);
     var result = '';
     if (hours) {
-      result += '$hoursStr';
+      result += hoursStr;
     }
     if (minute) {
       if (hours) {
         result += hoursRightBreak;
       }
-      result += '$mStr';
+      result += mStr;
     }
     if (second) {
       if (minute) {
         result += minuteRightBreak;
       }
-      result += '$sStr';
+      result += sStr;
     }
     if (milliSecond) {
       if (second) {
         result += secondRightBreak;
       }
-      result += '$msStr';
+      result += msStr;
     }
     return result;
   }
 
   /// Get display hours time.
   static String getDisplayTimeHours(int mSec) {
-    return getRawHours(mSec).floor().toString().padLeft(2, '0');
+    return getRawHours(mSec).toString().padLeft(2, '0');
   }
 
   /// Get display minute time.
   static String getDisplayTimeMinute(int mSec, {bool hours = false}) {
     if (hours) {
-      return getMinute(mSec).floor().toString().padLeft(2, '0');
+      return getMinute(mSec).toString().padLeft(2, '0');
     } else {
-      return getRawMinute(mSec).floor().toString().padLeft(2, '0');
+      return getRawMinute(mSec).toString().padLeft(2, '0');
     }
   }
 
@@ -225,32 +195,33 @@ class StopWatchTimer {
   static int getRawSecond(int milliSecond) => (milliSecond / 1000).floor();
 
   /// Get milli second from hour
-  static int getMilliSecFromHour(int hour) => (hour * (3600 * 1000)).floor();
+  static int getMilliSecFromHour(int hour) => hour * (3600 * 1000);
 
   /// Get milli second from minute
-  static int getMilliSecFromMinute(int minute) => (minute * 60000).floor();
+  static int getMilliSecFromMinute(int minute) => minute * 60000;
 
   /// Get milli second from second
-  static int getMilliSecFromSecond(int second) => (second * 1000).floor();
+  static int getMilliSecFromSecond(int second) => second * 1000;
 
   /// When finish running timer, it need to dispose.
   Future<void> dispose() async {
     if (_elapsedTime.isClosed) {
       throw Exception(
-          'This instance is already disposed. Please re-create StopWatchTimer instance.');
+        'This instance is already disposed. Please create timer object.',
+      );
     }
 
-    if (_timer != null && _timer!.isActive) {
-      _timer!.cancel();
+    final timer = _timer;
+    if (timer != null && timer.isActive) {
+      timer.cancel();
     }
 
-    await Future.wait<dynamic>([
+    await Future.wait<void>([
       _elapsedTime.close(),
       _rawTimeController.close(),
       _secondTimeController.close(),
       _minuteTimeController.close(),
       _recordsController.close(),
-      _executeController.close(),
       _onStoppedController.close(),
       _onEndedController.close(),
     ]);
@@ -281,7 +252,18 @@ class StopWatchTimer {
   /// Set preset time. 1000 mSec => 1 sec
   void setPresetTime({required int mSec, bool add = true}) {
     if (add) {
-      _presetTime += mSec;
+      if (mSec < 0) {
+        /// If mSec is negative value.
+        final nowRawTime = _rawTimeController.value;
+        if ((nowRawTime + mSec) > 0) {
+          _presetTime += mSec;
+        } else {
+          _presetTime = 0;
+        }
+      } else {
+        /// If mSec is positive value.
+        _presetTime += mSec;
+      }
     } else {
       _presetTime = mSec;
     }
@@ -310,9 +292,7 @@ class StopWatchTimer {
       if (time == 0) {
         _stop();
         _onEndedController.add(true);
-        if (onEnded != null) {
-          onEnded!();
-        }
+        onEnded?.call();
       }
     } else {
       throw Exception('No support mode');
@@ -334,19 +314,17 @@ class StopWatchTimer {
   void _start() {
     if (!isRunning) {
       _startTime = DateTime.now().millisecondsSinceEpoch;
-      _timer = Timer.periodic(const Duration(milliseconds: 1), _handle);
+      _timer = Timer.periodic(Duration(milliseconds: refreshTime), _handle);
     }
   }
 
   bool _stop() {
     if (isRunning) {
-      _timer!.cancel();
+      _timer?.cancel();
       _timer = null;
       _stopTime += DateTime.now().millisecondsSinceEpoch - _startTime;
       _onStoppedController.add(true);
-      if (onStopped != null) {
-        onStopped!();
-      }
+      onStopped?.call();
       return true;
     } else {
       return false;
@@ -355,10 +333,10 @@ class StopWatchTimer {
 
   void _reset() {
     if (isRunning) {
-      _timer!.cancel();
+      _timer?.cancel();
       _timer = null;
     }
-    if (isRunning || _startTime > 0) {
+    if (isRunning && _startTime > 0) {
       _onStoppedController.add(true);
       if (onStopped != null) {
         onStopped!();
@@ -377,13 +355,15 @@ class StopWatchTimer {
   void _lap() {
     if (isRunning) {
       final rawValue = _rawTimeController.value;
-      _records.add(StopWatchRecord(
-        rawValue: rawValue,
-        hours: getRawHours(rawValue),
-        minute: getRawMinute(rawValue),
-        second: getRawSecond(rawValue),
-        displayTime: getDisplayTime(rawValue, hours: isLapHours),
-      ));
+      _records.add(
+        StopWatchRecord(
+          rawValue: rawValue,
+          hours: getRawHours(rawValue),
+          minute: getRawMinute(rawValue),
+          second: getRawSecond(rawValue),
+          displayTime: getDisplayTime(rawValue, hours: isLapHours),
+        ),
+      );
       _recordsController.add(_records);
     }
   }

@@ -1,10 +1,16 @@
 # stop_watch_timer
 
+[![Never inc][logo_black]][never_link_light]
+
+Developed with 💙 by [Never inc](https://neverjp.com/).
+
+---
+
 Simple CountUp timer / CountDown timer. It easily create app of stopwatch.
 
 [https://pub.dev/packages/stop_watch_timer](https://pub.dev/packages/stop_watch_timer)
 
-![countup_timer_demo](./countup_timer_demo.gif) ![countdown_timer_demo](./countdown_timer_demo.gif)
+![./img/countup_timer_demo](img/countup_timer_demo.gif) ![./img/countdown_timer_demo](img/countdown_timer_demo.gif)
 
 ## Example code
 See the example directory for a complete sample app using stop_watch_timer.
@@ -376,3 +382,6 @@ Can be used [getDisplayTime](https://github.com/hukusuke1007/stop_watch_timer/bl
 For example, 1 hours and 30 minute and 50 second and 20 millisecond => "01:30:50.20"
 
 And can be set enable/disable display time and change split character.
+
+[logo_black]: ./img/logo_blk.png
+[never_link_light]: https://neverjp.com
